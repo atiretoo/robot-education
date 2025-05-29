@@ -1,3 +1,4 @@
+  #include "Adafruit_VL53L0X.h"
   /* Ardumoto Example Sketch
     by: Jim Lindblom
   date: November 8, 2013
@@ -26,6 +27,7 @@ int _index = 0;
 bool  cmdPending   = false;
 unsigned long startMs, durationMs;
 int dirA, spdA, dirB, spdB;
+Adafruit_VL53L0X lox = Adafruit_VL53L0X();
 
 // Clockwise and counter-clockwise definitions.
 // Depending on how you wired your motors, you may need to swap.
@@ -50,26 +52,48 @@ void setup()
 {
   setupArdumoto(); // Set all pins as outputs
   Serial.begin(115200);
+  while (! Serial) {
+    delay(1);
+  }
+
+  Serial.println("Adafruit VL53L0X test.");
+  if (!lox.begin()) {
+    Serial.println(F("Failed to boot VL53L0X"));
+    while(1);
+  }
+  // power
+  Serial.println(F("VL53L0X API Continuous Ranging example\n\n"));
+
+  // start continuous ranging
+  lox.startRangeContinuous();
 }
 
 void loop()
 {
-  int A, B, t;
+  int A, B;
+  int t;
+  int range = lox.readRange();
 
   // 1. check for new command
   while (Serial.available()) {
+    
     char c = Serial.read();
+    //Serial.println("Reading message.");
     if (c == '\n') {
       inputBuffer[_index] = '\0';
-      if (sscanf(inputBuffer, "%d,%d,%d", &A,&B,&t) == 3) {
+      Serial.println(inputBuffer);
+      Serial.println(sscanf(inputBuffer, "%d,%d,%d", &A,&B,&t));
+      if (sscanf(inputBuffer, "%d,%d,%f", &A,&B,&t)) {
+        
+        
         dirA      = (A >= 0);  spdA = abs(A);
         dirB      = (B >= 0);  spdB = abs(B);
-        durationMs = (unsigned long)t * 1000;
+        durationMs = (unsigned long)(t * 100);
+        
         startMs    = millis();
         cmdPending = true;
 
-        driveArdumoto(MOTOR_A, dirA, spdA);
-        driveArdumoto(MOTOR_B, dirB, spdB);
+        
       }
       _index = 0;
     }
@@ -78,20 +102,37 @@ void loop()
     } else {
       _index = 0;
     }
+
   }
+  
 
   // 2. if a command is active and time’s up, stop motors
-  if (cmdPending && (millis() - startMs >= durationMs)) {
+  if ((cmdPending && (millis() - startMs >= durationMs)) || (range < 500 && isForward())) {
     stopArdumoto(MOTOR_A);
     stopArdumoto(MOTOR_B);
     cmdPending = false;
     Serial.println("Motors stopped");
+  } else if(cmdPending) {
+    driveArdumoto(MOTOR_A, dirA, spdA);
+    driveArdumoto(MOTOR_B, dirB, spdB);
   }
 
   // …you can do other work here (sensor polling, comms, etc.)…
 
 }
 
+bool isForward() {
+  if (dirA && dirB) {
+    return true;
+  } else if (!dirA && !dirB) {
+    return false;
+  }
+  if ((dirA && spdA > spdB) || (dirB && spdB > spdA)) {
+    return true;
+  }
+  return false;
+
+}
 // driveArdumoto drives 'motor' in 'dir' direction at 'spd' speed
 void driveArdumoto(byte motor, byte dir, byte spd)
 {
