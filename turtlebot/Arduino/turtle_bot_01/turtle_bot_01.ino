@@ -84,6 +84,8 @@ void loop()
   driveArdumoto(MOTOR_A, dirA, spdA);
   driveArdumoto(MOTOR_B, dirB, spdB);
   delay(t*1000);
+  stopArdumoto(MOTOR_A);
+  stopArdumoto(MOTOR_B);
   // // Drive motor A (and only motor A) at various speeds, then stop.
   // driveArdumoto(MOTOR_A, REVERSE, 255); // Set motor A to REVERSE at max
   // delay(1000);  // Motor A will spin as set for 1 second
