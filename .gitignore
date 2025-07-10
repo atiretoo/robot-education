@@ -1,0 +1,91 @@
+# Gitignore for Robot Project with Arduino and OpenSCAD
+
+# --- Arduino Specific Exclusions ---
+# Arduino IDE generated files
+*.elf
+*.hex
+*.bin
+*.lss
+*.eep
+*.srec
+*.lst
+*.su
+*.map
+*.sym
+*.o
+*.d
+
+# Temporary files and build folders that Arduino IDE or build systems might create
+# If using PlatformIO, its build output goes into .pioenvs/ or .pio/
+.pio/
+.pioenvs/
+build/
+output/
+
+# Arduino libraries downloaded into sketch folder (should be in global libs or explicitly included)
+# If you have libraries specific to THIS project and you want to include them,
+# you might need to adjust this. Generally, library code should be versioned
+# separately or managed via platformio.ini for PlatformIO projects.
+# For simple Arduino IDE projects, if you put libraries directly in the sketch folder,
+# you might want to remove these lines if you intend to commit them.
+# Example: If you have a 'libraries' folder inside a sketch folder:
+# libraries/*
+# !libraries/.gitkeep # If you want to keep the folder but ignore contents
+
+# --- OpenSCAD Specific Exclusions ---
+# OpenSCAD backup files
+*.bak
+
+# Exported 3D model files (unless you want to commit specific versions)
+# These are often derived from the .scad files and can be regenerated.
+*.stl
+*.obj
+*.amf
+*.3mf
+*.dxf
+*.svg
+*.png # For 2D exports from OpenSCAD
+
+# Temporary or cache files from OpenSCAD or related tools
+*.scad~ # Some editors create these
+*.zip # If you're zipping models for printing
+
+# --- General Development Exclusions ---
+# Operating System temporary files
+.DS_Store          # macOS
+.Trashes           # macOS
+._* # macOS thumbnail files
+ehthumbs.db        # Windows
+Thumbs.db          # Windows
+Desktop.ini        # Windows
+~*.tmp             # Temporary files from various editors
+
+# Editor/IDE specific files
+.vscode/           # Visual Studio Code settings (unless shared configuration is desired)
+.idea/             # IntelliJ/WebStorm/PyCharm etc. IDE files
+*.sublime-project
+*.sublime-workspace
+*.swp              # Vim swap files
+*.swo              # Vim swap files
+*~                 # General editor backup files
+# For other IDEs, add their specific config folders here
+
+# Log files
+*.log
+log/
+
+# Dependency / Package Manager Specific (if used for other parts of robot project)
+# npm / Node.js
+node_modules/
+package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/ # Jupyter notebooks
+
+# Ignore compiled executables or binaries if any part of your project builds them
+*.exe
+*.dll
+*.so
+*.dylib
