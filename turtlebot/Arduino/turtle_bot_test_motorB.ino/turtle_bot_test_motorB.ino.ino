@@ -29,10 +29,11 @@
 
 // Pin Assignments //
 //Default pins:
-#define DIRA 2 // Direction control for motor A
+#define FORA 2 // Direction control for motor A
 #define PWMA 3  // PWM control (speed) for motor A
-#define DIRB 4 // Direction control for motor B
+#define REVA 4 // Direction control for motor B
 #define PWMB 11 // PWM control (speed) for motor B
+#define DIRB 1
 
 ////Alternate pins:
 //#define DIRA 8 // Direction control for motor A
@@ -92,18 +93,21 @@ void loop()
   //   // Drive back
   // driveArdumoto(MOTOR_A, FORWARD, 200);  // Motor A at 80% speed?
   // driveArdumoto(MOTOR_B, FORWARD, 200);  // Motor B at 80% speed?
-  // delay(3000);  // Drive forward for three seconds
-  driveArdumoto(MOTOR_B, REVERSE, 200);
+  // delay(3000);  // Drive forward for three seconds 
+  driveArdumoto(MOTOR_A, FORWARD, 200);
   delay(3000);
-  stopArdumoto(MOTOR_B);
+  stopArdumoto(MOTOR_A);
+  driveArdumoto(MOTOR_A, REVERSE, 200);
+  delay(3000);
+  stopArdumoto(MOTOR_A);
   delay(1000);
-  driveArdumoto(MOTOR_B, REVERSE, 127);
+  driveArdumoto(MOTOR_A, REVERSE, 127);
   delay(3000);
-  stopArdumoto(MOTOR_B);
+  stopArdumoto(MOTOR_A);
   delay(1000);
-  driveArdumoto(MOTOR_B, REVERSE, 255);
+  driveArdumoto(MOTOR_A, REVERSE, 255);
   delay(3000);
-  stopArdumoto(MOTOR_B);
+  stopArdumoto(MOTOR_A);
   delay(1000);
 }
 
@@ -112,8 +116,18 @@ void driveArdumoto(byte motor, byte dir, byte spd)
 {
   if (motor == MOTOR_A)
   {
-    digitalWrite(DIRA, dir);
-    analogWrite(PWMA, spd);
+    if (dir == FORWARD)
+    {
+      digitalWrite(FORA, HIGH);
+      digitalWrite(REVA, LOW);
+      analogWrite(PWMA, spd);
+    }
+    if (dir == REVERSE)
+    {
+      digitalWrite(FORA, LOW);
+      digitalWrite(REVA, HIGH);
+      analogWrite(PWMA, spd);
+    }
   }
   else if (motor == MOTOR_B)
   {
@@ -125,7 +139,8 @@ void driveArdumoto(byte motor, byte dir, byte spd)
 // stopArdumoto makes a motor stop
 void stopArdumoto(byte motor)
 {
-  driveArdumoto(motor, 0, 0);
+  digitalWrite(FORA, LOW);
+  digitalWrite(REVA, LOW);
 }
 
 // setupArdumoto initialize all pins
@@ -134,12 +149,12 @@ void setupArdumoto()
   // All pins should be setup as outputs:
   pinMode(PWMA, OUTPUT); 
   pinMode(PWMB, OUTPUT);
-  pinMode(DIRA, OUTPUT);
-  pinMode(DIRB, OUTPUT);
+  pinMode(FORA, OUTPUT);
+  pinMode(REVA, OUTPUT);
 
   // Initialize all pins as low:
   digitalWrite(PWMA, LOW);
   digitalWrite(PWMB, LOW);
-  digitalWrite(DIRA, LOW);
-  digitalWrite(DIRB, LOW);
+  digitalWrite(FORA, LOW);
+  digitalWrite(REVA, LOW);
 }
