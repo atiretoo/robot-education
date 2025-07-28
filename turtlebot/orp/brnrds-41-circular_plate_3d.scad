@@ -1,5 +1,5 @@
 // Parameters
-plate_diameter = 330;
+plate_diameter = 160;
 plate_thickness = 3;
 hole_diameter = 3.5; // ORP rules
 hole_spacing = 20; // ORP rules

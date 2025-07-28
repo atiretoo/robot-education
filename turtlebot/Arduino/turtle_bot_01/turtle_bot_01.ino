@@ -20,8 +20,8 @@
 
 // Clockwise and counter-clockwise definitions.
 // Depending on how you wired your motors, you may need to swap.
-#define FORWARD  0
-#define REVERSE 1
+#define FORWARD  1
+#define REVERSE 0
 
 // Motor definitions to make life easier:
 #define MOTOR_A 0
@@ -29,16 +29,12 @@
 
 // Pin Assignments //
 //Default pins:
-#define DIRA 2 // Direction control for motor A
+#define FORA 2 // Direction control for motor A
+#define REVA 4 // Direction control for motor A
 #define PWMA 3  // PWM control (speed) for motor A
-#define DIRB 4 // Direction control for motor B
-#define PWMB 11 // PWM control (speed) for motor B
-
-////Alternate pins:
-//#define DIRA 8 // Direction control for motor A
-//#define PWMA 9 // PWM control (speed) for motor A
-//#define DIRB 7 // Direction control for motor B
-//#define PWMB 10 // PWM control (speed) for motor B
+#define FORB 7 // Direction control for motor B
+#define REVB 8 // Direction control for motor B
+#define PWMB 9 // PWM control (speed) for motor B
 
 
 void setup()
@@ -63,16 +59,15 @@ void loop()
   // stopArdumoto(MOTOR_B);  // STOP motor B 
 
   // Drive both
-  driveArdumoto(MOTOR_A, FORWARD, 255);  // Motor A at 80% speed?
-  driveArdumoto(MOTOR_B, FORWARD, 255);  // Motor B at 80% speed?
+  driveArdumoto(MOTOR_A, FORWARD, 200);  // Motor A at 80% speed?
+  driveArdumoto(MOTOR_B, FORWARD, 200);  // Motor B at 80% speed?
   delay(3000);  // Drive forward for three seconds
-  stopArdumoto(MOTOR_A);  // STOP motor A 
-  stopArdumoto(MOTOR_B);  // STOP motor B 
-  delay(1000);
+  stopArdumoto(MOTOR_A);
+  stopArdumoto(MOTOR_B);
+
   // Now spin in place!
+  driveArdumoto(MOTOR_A, FORWARD, 255);  // Motor A at max speed.
   driveArdumoto(MOTOR_B, REVERSE, 255);  // Motor B at max speed.
-  // driveArdumoto(MOTOR_A, FORWARD, 200);  // Motor A at max speed.
-  
   delay(2000);  // spin for two seconds
   stopArdumoto(MOTOR_A);  // STOP motor A 
   stopArdumoto(MOTOR_B);  // STOP motor B 
@@ -86,7 +81,7 @@ void loop()
 
   driveArdumoto(MOTOR_A, FORWARD, 127);  // Motor A at half speed?
   driveArdumoto(MOTOR_B, REVERSE, 127);  // Motor B at half speed?
-  delay(2000);  // spin for two seconds
+  delay(2000);  // spin for four seconds
   stopArdumoto(MOTOR_A);  // STOP motor A 
   stopArdumoto(MOTOR_B);  // STOP motor B 
 
@@ -94,7 +89,7 @@ void loop()
   driveArdumoto(MOTOR_A, FORWARD, 200);  // Motor A at 80% speed?
   driveArdumoto(MOTOR_B, FORWARD, 200);  // Motor B at 80% speed?
   delay(3000);  // Drive forward for three seconds
-  
+
 }
 
 // driveArdumoto drives 'motor' in 'dir' direction at 'spd' speed
@@ -102,13 +97,33 @@ void driveArdumoto(byte motor, byte dir, byte spd)
 {
   if (motor == MOTOR_A)
   {
-    digitalWrite(DIRA, dir);
-    analogWrite(PWMA, spd);
+    if (dir == FORWARD)
+    {
+      digitalWrite(FORA, HIGH);
+      digitalWrite(REVA, LOW);
+      analogWrite(PWMA, spd);
+    }
+    if (dir == REVERSE)
+    {
+      digitalWrite(FORA, LOW);
+      digitalWrite(REVA, HIGH);
+      analogWrite(PWMA, spd);
+    }
   }
   else if (motor == MOTOR_B)
   {
-    digitalWrite(DIRB, dir);
-    analogWrite(PWMB, spd);
+    if (dir == FORWARD)
+    {
+      digitalWrite(FORB, HIGH);
+      digitalWrite(REVB, LOW);
+      analogWrite(PWMB, spd);
+    }
+    if (dir == REVERSE)
+    {
+      digitalWrite(FORB, LOW);
+      digitalWrite(REVB, HIGH);
+      analogWrite(PWMB, spd);
+    }
   }  
 }
 
@@ -124,12 +139,16 @@ void setupArdumoto()
   // All pins should be setup as outputs:
   pinMode(PWMA, OUTPUT); 
   pinMode(PWMB, OUTPUT);
-  pinMode(DIRA, OUTPUT);
-  pinMode(DIRB, OUTPUT);
+  pinMode(FORA, OUTPUT);
+  pinMode(FORB, OUTPUT);
+  pinMode(REVA, OUTPUT);
+  pinMode(REVB, OUTPUT);
 
   // Initialize all pins as low:
   digitalWrite(PWMA, LOW);
   digitalWrite(PWMB, LOW);
-  digitalWrite(DIRA, LOW);
-  digitalWrite(DIRB, LOW);
+  digitalWrite(FORA, LOW);
+  digitalWrite(REVA, LOW);
+  digitalWrite(FORB, LOW);
+  digitalWrite(REVB, LOW);
 }
