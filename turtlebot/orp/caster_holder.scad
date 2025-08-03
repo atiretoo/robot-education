@@ -7,9 +7,9 @@ m3_cap_clear = get_metric_socket_cap_diam(3.0)*1.1;
 m3_nut_clear = get_metric_nut_size(3.0)*1.1;
 m3_nut_depth = get_metric_nut_thickness(3.0)*1.1;
 
-board_width = 43.4;
-hole_dia = 2.9;
-hole_offset = 1.75;
+board_width = 46;
+hole_dia = 4.1;
+hole_offset = 3.2;
 offset_depth = 6.5;
 offset_hole_from_center = board_width/2 - hole_offset - hole_dia/2;
 mount_width = 50;
