@@ -1,7 +1,7 @@
 //include <metric_screw_sizes.scad>
 include <BOSL-1.0.3/metric_screws.scad>
 $fn = 60;
-m3_clearance = 3.2;
+m3_clearance = 4;
 m3_cap_depth = get_metric_socket_cap_height(3.0)*1.1;
 m3_cap_clear = get_metric_socket_cap_diam(3.0)*1.1;
 m3_nut_clear = get_metric_nut_size(3.0)*1.1;
@@ -10,13 +10,14 @@ m3_nut_depth = get_metric_nut_thickness(3.0)*1.1;
 board_width = 46;
 hole_dia = 4.1;
 hole_offset = 3.2;
-offset_depth = 6.5;
+
 offset_hole_from_center = board_width/2 - hole_offset - hole_dia/2;
 mount_width = 50;
 mount_depth = 60;
 mount_height = 3+2*m3_cap_depth;
 mount_center_x = mount_width/2;
 mount_center_y = mount_depth/2-5;
+offset_depth = mount_height;
 
 
 module mount_holes(z, dia = m3_clearance, caps = 0, nuts = 0){
@@ -49,15 +50,16 @@ difference(){
     for(row=[0:1:2]){
         for(col=[0:1:2]){
             translate([mount_center_x-20+col*20, mount_center_y-20+row*20, 0])
-                #mount_holes(mount_height, nuts = 3);
+                #mount_holes(mount_height, caps = 1, nuts = 2);
         }
     }
-    translate([mount_center_x - offset_hole_from_center, mount_center_y+10 - offset_hole_from_center, mount_height-offset_depth])
-        cylinder(h = offset_depth, r = 2);
-    translate([mount_center_x + offset_hole_from_center, mount_center_y+10 - offset_hole_from_center, mount_height-offset_depth])
-        cylinder(h = offset_depth, r = 2);
-    translate([mount_center_x - offset_hole_from_center, mount_center_y+10 + offset_hole_from_center, mount_height-offset_depth])
-        cylinder(h = offset_depth, r = 2);
-    translate([mount_center_x + offset_hole_from_center, mount_center_y+10 + offset_hole_from_center, mount_height-offset_depth])
-        cylinder(h = offset_depth, r = 2);
+    y_offset = 10;
+    translate([mount_center_x - offset_hole_from_center, mount_center_y+y_offset, 0])
+        mount_holes(z = mount_height, dia = m3_clearance, caps = 1, nuts = 2);;
+    translate([mount_center_x + offset_hole_from_center, mount_center_y+y_offset, 0])
+        mount_holes(z = mount_height, dia = m3_clearance, caps = 1, nuts = 2);;
+    translate([mount_center_x, mount_center_y+y_offset + offset_hole_from_center, 0])
+        mount_holes(z = mount_height, dia = m3_clearance, caps = 1, nuts = 2);;
+    translate([mount_center_x, mount_center_y+y_offset - offset_hole_from_center, 0])
+        mount_holes(z = mount_height, dia = m3_clearance, caps = 1, nuts = 2);;
 }
