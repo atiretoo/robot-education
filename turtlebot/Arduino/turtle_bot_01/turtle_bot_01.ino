@@ -23,6 +23,9 @@ July-August 2025
 */
 char inputBuffer[32]; //save enough space for the message
 int _index = 0;
+bool  cmdPending   = false;
+unsigned long startMs, durationMs;
+int dirA, spdA, dirB, spdB;
 
 // Clockwise and counter-clockwise definitions.
 // Depending on how you wired your motors, you may need to swap.
@@ -47,90 +50,45 @@ void setup()
 {
   setupArdumoto(); // Set all pins as outputs
   Serial.begin(115200);
-
 }
 
 void loop()
 {
   int A, B, t;
-  int dirA, spdA, dirB, spdB;
-  while(Serial.available()){
-    char incoming = Serial.read();
 
-    //check for newline or carriage return
-    if (incoming == '\n') {
-      inputBuffer[_index] = '\0'; // null terminate the string
-      if(sscanf(inputBuffer, "%d,%d,%d", &A, &B, &t)==3){
-        Serial.print("Parsed: ");
-        Serial.print(A); Serial.print(", ");
-        Serial.print(B); Serial.print(", ");
-        Serial.println(t);
-      } else {
-        Serial.println("Parse error");
+  // 1. check for new command
+  while (Serial.available()) {
+    char c = Serial.read();
+    if (c == '\n') {
+      inputBuffer[_index] = '\0';
+      if (sscanf(inputBuffer, "%d,%d,%d", &A,&B,&t) == 3) {
+        dirA      = (A >= 0);  spdA = abs(A);
+        dirB      = (B >= 0);  spdB = abs(B);
+        durationMs = (unsigned long)t * 1000;
+        startMs    = millis();
+        cmdPending = true;
+
+        driveArdumoto(MOTOR_A, dirA, spdA);
+        driveArdumoto(MOTOR_B, dirB, spdB);
       }
-      _index = 0; //reset buffer
-    } else if (_index < sizeof(inputBuffer)-1){
-      inputBuffer[_index++] = incoming;
+      _index = 0;
+    }
+    else if (_index < sizeof(inputBuffer)-1) {
+      inputBuffer[_index++] = c;
     } else {
-      //Buffer overflow protection
-      _index = 0; 
-      Serial.println("Buffer overflow");
+      _index = 0;
     }
   }
-  dirA = A >= 0;
-  spdA = abs(A);
-  dirB = B >= 0;
-  spdB = abs(B);
-  driveArdumoto(MOTOR_A, dirA, spdA);
-  driveArdumoto(MOTOR_B, dirB, spdB);
-  delay(t*1000);
-  stopArdumoto(MOTOR_A);
-  stopArdumoto(MOTOR_B);
-  // // Drive motor A (and only motor A) at various speeds, then stop.
-  // driveArdumoto(MOTOR_A, REVERSE, 255); // Set motor A to REVERSE at max
-  // delay(1000);  // Motor A will spin as set for 1 second
-  // driveArdumoto(MOTOR_A, FORWARD, 127);  // Set motor A to FORWARD at half
-  // delay(1000);  // Motor A will keep trucking for 1 second 
-  // stopArdumoto(MOTOR_A);  // STOP motor A 
 
-  // // Drive motor B (and only motor B) at various speeds, then stop.
-  // driveArdumoto(MOTOR_B, REVERSE, 255); // Set motor B to REVERSE at max
-  // delay(1000);  // Motor B will spin as set for 1 second
-  // driveArdumoto(MOTOR_B, FORWARD, 127);  // Set motor B to FORWARD at half
-  // delay(1000);  // Motor B will keep trucking for 1 second
-  // stopArdumoto(MOTOR_B);  // STOP motor B 
+  // 2. if a command is active and time’s up, stop motors
+  if (cmdPending && (millis() - startMs >= durationMs)) {
+    stopArdumoto(MOTOR_A);
+    stopArdumoto(MOTOR_B);
+    cmdPending = false;
+    Serial.println("Motors stopped");
+  }
 
-  // Drive both
-  // driveArdumoto(MOTOR_A, FORWARD, 200);  // Motor A at 80% speed?
-  // driveArdumoto(MOTOR_B, FORWARD, 200);  // Motor B at 80% speed?
-  // delay(3000);  // Drive forward for three seconds
-  // stopArdumoto(MOTOR_A);
-  // stopArdumoto(MOTOR_B);
-
-  // // Now spin in place!
-  // driveArdumoto(MOTOR_A, FORWARD, 255);  // Motor A at max speed.
-  // driveArdumoto(MOTOR_B, REVERSE, 255);  // Motor B at max speed.
-  // delay(2000);  // spin for two seconds
-  // stopArdumoto(MOTOR_A);  // STOP motor A 
-  // stopArdumoto(MOTOR_B);  // STOP motor B 
-
-  //   // Now spin in place but slower and in the opposite direction!
-  // driveArdumoto(MOTOR_A, REVERSE, 127);  // Motor A at half speed?
-  // driveArdumoto(MOTOR_B, FORWARD, 127);  // Motor B at half speed?
-  // delay(4000);  // spin for four seconds
-  // stopArdumoto(MOTOR_A);  // STOP motor A 
-  // stopArdumoto(MOTOR_B);  // STOP motor B 
-
-  // driveArdumoto(MOTOR_A, FORWARD, 127);  // Motor A at half speed?
-  // driveArdumoto(MOTOR_B, REVERSE, 127);  // Motor B at half speed?
-  // delay(2000);  // spin for four seconds
-  // stopArdumoto(MOTOR_A);  // STOP motor A 
-  // stopArdumoto(MOTOR_B);  // STOP motor B 
-
-  //   // Drive back
-  // driveArdumoto(MOTOR_A, FORWARD, 200);  // Motor A at 80% speed?
-  // driveArdumoto(MOTOR_B, FORWARD, 200);  // Motor B at 80% speed?
-  // delay(3000);  // Drive forward for three seconds
+  // …you can do other work here (sensor polling, comms, etc.)…
 
 }
 
