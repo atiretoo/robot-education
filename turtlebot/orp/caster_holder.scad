@@ -14,7 +14,7 @@ hole_offset = 3.2;
 offset_hole_from_center = board_width/2 - hole_offset - hole_dia/2;
 mount_width = 50;
 mount_depth = 60;
-mount_height = 3+2*m3_cap_depth;
+mount_height = 20;
 mount_center_x = mount_width/2;
 mount_center_y = mount_depth/2-5;
 offset_depth = mount_height;
@@ -50,16 +50,17 @@ difference(){
     for(row=[0:1:2]){
         for(col=[0:1:2]){
             translate([mount_center_x-20+col*20, mount_center_y-20+row*20, 0])
-                #mount_holes(mount_height, caps = 1, nuts = 2);
+                #mount_holes(mount_height, caps = 1, nuts = 0);
         }
     }
+    // holes for caster
     y_offset = 10;
     translate([mount_center_x - offset_hole_from_center, mount_center_y+y_offset, 0])
-        mount_holes(z = mount_height, dia = m3_clearance, caps = 1, nuts = 2);;
+        mount_holes(z = mount_height, dia = m3_clearance*1.1, caps = 0, nuts = 0);;
     translate([mount_center_x + offset_hole_from_center, mount_center_y+y_offset, 0])
-        mount_holes(z = mount_height, dia = m3_clearance, caps = 1, nuts = 2);;
+        mount_holes(z = mount_height, dia = m3_clearance*1.1, caps = 0, nuts = 0);;
     translate([mount_center_x, mount_center_y+y_offset + offset_hole_from_center, 0])
-        mount_holes(z = mount_height, dia = m3_clearance, caps = 1, nuts = 2);;
+        mount_holes(z = mount_height, dia = m3_clearance*1.1, caps = 0, nuts = 0);;
     translate([mount_center_x, mount_center_y+y_offset - offset_hole_from_center, 0])
-        mount_holes(z = mount_height, dia = m3_clearance, caps = 1, nuts = 2);;
+        mount_holes(z = mount_height, dia = m3_clearance*1.1, caps = 0, nuts = 0);;
 }
