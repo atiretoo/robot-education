@@ -1,5 +1,5 @@
-    /* Ardumoto Example Sketch
-  by: Jim Lindblom
+  /* Ardumoto Example Sketch
+    by: Jim Lindblom
   date: November 8, 2013
   license: Public domain. Please use, reuse, and modify this 
   sketch!
@@ -17,6 +17,12 @@
   setupArdumoto() is called in the setup().
   The loop() demonstrates use of the motor driving functions.
 */
+/* Modifications for generic motor driver
+by: Drew Tyre & Sasha Tenhumberg
+July-August 2025
+*/
+char inputBuffer[32]; //save enough space for the message
+int _index = 0;
 
 // Clockwise and counter-clockwise definitions.
 // Depending on how you wired your motors, you may need to swap.
@@ -40,10 +46,44 @@
 void setup()
 {
   setupArdumoto(); // Set all pins as outputs
+  Serial.begin(115200);
+
 }
 
 void loop()
 {
+  int A, B, t;
+  int dirA, spdA, dirB, spdB;
+  while(Serial.available()){
+    char incoming = Serial.read();
+
+    //check for newline or carriage return
+    if (incoming == '\n') {
+      inputBuffer[_index] = '\0'; // null terminate the string
+      if(sscanf(inputBuffer, "%d,%d,%d", &A, &B, &t)==3){
+        Serial.print("Parsed: ");
+        Serial.print(A); Serial.print(", ");
+        Serial.print(B); Serial.print(", ");
+        Serial.println(t);
+      } else {
+        Serial.println("Parse error");
+      }
+      _index = 0; //reset buffer
+    } else if (_index < sizeof(inputBuffer)-1){
+      inputBuffer[_index++] = incoming;
+    } else {
+      //Buffer overflow protection
+      _index = 0; 
+      Serial.println("Buffer overflow");
+    }
+  }
+  dirA = A >= 0;
+  spdA = abs(A);
+  dirB = B >= 0;
+  spdB = abs(B);
+  driveArdumoto(MOTOR_A, dirA, spdA);
+  driveArdumoto(MOTOR_B, dirB, spdB);
+  delay(t*1000);
   // // Drive motor A (and only motor A) at various speeds, then stop.
   // driveArdumoto(MOTOR_A, REVERSE, 255); // Set motor A to REVERSE at max
   // delay(1000);  // Motor A will spin as set for 1 second
@@ -59,36 +99,36 @@ void loop()
   // stopArdumoto(MOTOR_B);  // STOP motor B 
 
   // Drive both
-  driveArdumoto(MOTOR_A, FORWARD, 200);  // Motor A at 80% speed?
-  driveArdumoto(MOTOR_B, FORWARD, 200);  // Motor B at 80% speed?
-  delay(3000);  // Drive forward for three seconds
-  stopArdumoto(MOTOR_A);
-  stopArdumoto(MOTOR_B);
+  // driveArdumoto(MOTOR_A, FORWARD, 200);  // Motor A at 80% speed?
+  // driveArdumoto(MOTOR_B, FORWARD, 200);  // Motor B at 80% speed?
+  // delay(3000);  // Drive forward for three seconds
+  // stopArdumoto(MOTOR_A);
+  // stopArdumoto(MOTOR_B);
 
-  // Now spin in place!
-  driveArdumoto(MOTOR_A, FORWARD, 255);  // Motor A at max speed.
-  driveArdumoto(MOTOR_B, REVERSE, 255);  // Motor B at max speed.
-  delay(2000);  // spin for two seconds
-  stopArdumoto(MOTOR_A);  // STOP motor A 
-  stopArdumoto(MOTOR_B);  // STOP motor B 
+  // // Now spin in place!
+  // driveArdumoto(MOTOR_A, FORWARD, 255);  // Motor A at max speed.
+  // driveArdumoto(MOTOR_B, REVERSE, 255);  // Motor B at max speed.
+  // delay(2000);  // spin for two seconds
+  // stopArdumoto(MOTOR_A);  // STOP motor A 
+  // stopArdumoto(MOTOR_B);  // STOP motor B 
 
-    // Now spin in place but slower and in the opposite direction!
-  driveArdumoto(MOTOR_A, REVERSE, 127);  // Motor A at half speed?
-  driveArdumoto(MOTOR_B, FORWARD, 127);  // Motor B at half speed?
-  delay(4000);  // spin for four seconds
-  stopArdumoto(MOTOR_A);  // STOP motor A 
-  stopArdumoto(MOTOR_B);  // STOP motor B 
+  //   // Now spin in place but slower and in the opposite direction!
+  // driveArdumoto(MOTOR_A, REVERSE, 127);  // Motor A at half speed?
+  // driveArdumoto(MOTOR_B, FORWARD, 127);  // Motor B at half speed?
+  // delay(4000);  // spin for four seconds
+  // stopArdumoto(MOTOR_A);  // STOP motor A 
+  // stopArdumoto(MOTOR_B);  // STOP motor B 
 
-  driveArdumoto(MOTOR_A, FORWARD, 127);  // Motor A at half speed?
-  driveArdumoto(MOTOR_B, REVERSE, 127);  // Motor B at half speed?
-  delay(2000);  // spin for four seconds
-  stopArdumoto(MOTOR_A);  // STOP motor A 
-  stopArdumoto(MOTOR_B);  // STOP motor B 
+  // driveArdumoto(MOTOR_A, FORWARD, 127);  // Motor A at half speed?
+  // driveArdumoto(MOTOR_B, REVERSE, 127);  // Motor B at half speed?
+  // delay(2000);  // spin for four seconds
+  // stopArdumoto(MOTOR_A);  // STOP motor A 
+  // stopArdumoto(MOTOR_B);  // STOP motor B 
 
-    // Drive back
-  driveArdumoto(MOTOR_A, FORWARD, 200);  // Motor A at 80% speed?
-  driveArdumoto(MOTOR_B, FORWARD, 200);  // Motor B at 80% speed?
-  delay(3000);  // Drive forward for three seconds
+  //   // Drive back
+  // driveArdumoto(MOTOR_A, FORWARD, 200);  // Motor A at 80% speed?
+  // driveArdumoto(MOTOR_B, FORWARD, 200);  // Motor B at 80% speed?
+  // delay(3000);  // Drive forward for three seconds
 
 }
 
